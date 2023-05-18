@@ -2,6 +2,6 @@
 
 Each package has its own changelog.
 
-- [@headlessui/react](https://github.com/tailwindlabs/headlessui/blob/main/packages/@headlessui-react/CHANGELOG.md)
-- [@headlessui/vue](https://github.com/tailwindlabs/headlessui/blob/main/packages/@headlessui-vue/CHANGELOG.md)
-- [@headlessui/tailwindcss](https://github.com/tailwindlabs/headlessui/blob/main/packages/@headlessui-tailwindcss/CHANGELOG.md)
+- [@blackui/react](https://github.com/tailwindlabs/blackui/blob/main/packages/@blackui-react/CHANGELOG.md)
+- [@blackui/vue](https://github.com/tailwindlabs/blackui/blob/main/packages/@blackui-vue/CHANGELOG.md)
+- [@blackui/tailwindcss](https://github.com/tailwindlabs/blackui/blob/main/packages/@blackui-tailwindcss/CHANGELOG.md)

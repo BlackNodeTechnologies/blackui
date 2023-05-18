@@ -14,7 +14,7 @@ Thanks for your interest in contributing to Headless UI! Please take a moment to
 
 **Please ask first before starting work on any significant new features.**
 
-It's never a fun experience to have your pull request declined after investing a lot of time and effort into a new feature. To avoid this from happening, we request that contributors create [an issue](https://github.com/tailwindlabs/headlessui/issues) to first discuss any significant new features. This includes things like adding new components, exposing internal information, etc.
+It's never a fun experience to have your pull request declined after investing a lot of time and effort into a new feature. To avoid this from happening, we request that contributors create [an issue](https://github.com/tailwindlabs/blackui/issues) to first discuss any significant new features. This includes things like adding new components, exposing internal information, etc.
 Also make sure that you are making changes to both the `React` and `Vue` versions so that we can ensure feature parity.
 
 ## Monorepo
@@ -93,7 +93,7 @@ Global scripts, and some aliases:
 
 Scripts per package:
 
-- `yarn react`: Prefix to run anything in the `@headlessui/react` package
+- `yarn react`: Prefix to run anything in the `@blackui/react` package
   - `yarn react test`: run all jest tests
   - `yarn react test --watch`: run all jest tests in interactive mode
   - `yarn react test tabs`: run all jest tests filtered by `tabs`
@@ -106,7 +106,7 @@ Scripts per package:
   - `yarn react playground`: (alias) start a development server in the `playground-react` package
     - **Note**: this will also run `yarn react watch` for you, which means that you only need to execute `yarn react playground`
   - `yarn react clean`: this will remove `dist` files
-- `yarn vue`: Prefix to run anything in the `@headlessui/vue` package
+- `yarn vue`: Prefix to run anything in the `@blackui/vue` package
   - `yarn vue test`: run all jest tests
   - `yarn vue test --watch`: run all jest tests in interactive mode
   - `yarn vue test tabs`: run all jest tests filtered by `tabs`
