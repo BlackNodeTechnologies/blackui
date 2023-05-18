@@ -1,10 +1,7 @@
 name: Release package
 on:
-  workflow_dispatch:
-    inputs:
-      release-type:
-        description: 'Release type (one of): patch, minor, major, prepatch, preminor, premajor, prerelease'
-        required: true
+  push:
+    branches: [main]
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,6 +11,6 @@ jobs:
         with:
           node-version: 16
           registry-url: https://registry.npmjs.org/
-      - run: npm publish
+      - run: npm publish -w packages --tag insiders
         env:
           NODE_AUTH_TOKEN: ${{secrets.NODE_AUTH_TOKEN}}
