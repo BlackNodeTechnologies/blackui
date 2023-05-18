@@ -40,8 +40,6 @@ jobs:
           CI: true
 
       - name: Test
-        run: |
-          yarn test || yarn test || yarn test || exit 1
         env:
           CI: true
 
