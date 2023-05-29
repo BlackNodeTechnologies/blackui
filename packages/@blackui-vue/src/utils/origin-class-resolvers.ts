@@ -1,4 +1,6 @@
-import type { OriginClassResolver } from './type'
+import type { Placement } from '@floating-ui/dom'
+
+export type OriginClassResolver = (placement: Placement) => string
 
 export const tailwindcssOriginSafelist = [
   'origin-bottom',

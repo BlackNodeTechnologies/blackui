@@ -17,7 +17,7 @@ import {
   UnwrapRef,
 } from 'vue'
 import { dom } from '../../utils/dom'
-import { Keys } from 'keyboard'
+import { Keys } from '../../keyboard'
 import { focusIn, Focus, FocusResult, sortByDomNode } from '../../utils/focus-management'
 import { useId } from '../../hooks/use-id'
 import { compact, omit, render } from '../../utils/render'
@@ -96,7 +96,7 @@ export let RadioGroup = defineComponent({
     let [value, theirOnChange] = useControllable(
       computed(() => props.modelValue),
       (value: unknown) => emit('update:modelValue', value),
-      computed(() => props.defaultValue)
+      computed(() => props.defaultValue),
     )
 
     // TODO: Fix type
@@ -108,12 +108,12 @@ export let RadioGroup = defineComponent({
         options.value.find((option) => {
           if (option.propsRef.disabled) return false
           return true
-        })
+        }),
       ),
       containsCheckedOption: computed(() =>
         options.value.some((option) =>
-          api.compare(toRaw(option.propsRef.value), toRaw(props.modelValue))
-        )
+          api.compare(toRaw(option.propsRef.value), toRaw(props.modelValue)),
+        ),
       ),
       compare(a: any, z: any) {
         if (typeof props.by === 'string') {
@@ -126,7 +126,7 @@ export let RadioGroup = defineComponent({
         if (props.disabled) return false
         if (api.compare(toRaw(value.value), toRaw(nextValue))) return false
         let nextOption = options.value.find((option) =>
-          api.compare(toRaw(option.propsRef.value), toRaw(nextValue))
+          api.compare(toRaw(option.propsRef.value), toRaw(nextValue)),
         )?.propsRef
         if (nextOption?.disabled) return false
         theirOnChange(nextValue)
@@ -170,49 +170,46 @@ export let RadioGroup = defineComponent({
           attemptSubmit(event.currentTarget as unknown as EventTarget & HTMLButtonElement)
           break
         case Keys.ArrowLeft:
-        case Keys.ArrowUp:
-          {
-            event.preventDefault()
-            event.stopPropagation()
+        case Keys.ArrowUp: {
+          event.preventDefault()
+          event.stopPropagation()
 
-            let result = focusIn(all, Focus.Previous | Focus.WrapAround)
+          let result = focusIn(all, Focus.Previous | Focus.WrapAround)
 
-            if (result === FocusResult.Success) {
-              let activeOption = options.value.find(
-                (option) => option.element === getOwnerDocument(radioGroupRef)?.activeElement
-              )
-              if (activeOption) api.change(activeOption.propsRef.value)
-            }
-          }
-          break
-
-        case Keys.ArrowRight:
-        case Keys.ArrowDown:
-          {
-            event.preventDefault()
-            event.stopPropagation()
-
-            let result = focusIn(all, Focus.Next | Focus.WrapAround)
-
-            if (result === FocusResult.Success) {
-              let activeOption = options.value.find(
-                (option) => option.element === getOwnerDocument(option.element)?.activeElement
-              )
-              if (activeOption) api.change(activeOption.propsRef.value)
-            }
-          }
-          break
-
-        case Keys.Space:
-          {
-            event.preventDefault()
-            event.stopPropagation()
-
+          if (result === FocusResult.Success) {
             let activeOption = options.value.find(
-              (option) => option.element === getOwnerDocument(option.element)?.activeElement
+              (option) => option.element === getOwnerDocument(radioGroupRef)?.activeElement,
             )
             if (activeOption) api.change(activeOption.propsRef.value)
           }
+        }
+          break
+
+        case Keys.ArrowRight:
+        case Keys.ArrowDown: {
+          event.preventDefault()
+          event.stopPropagation()
+
+          let result = focusIn(all, Focus.Next | Focus.WrapAround)
+
+          if (result === FocusResult.Success) {
+            let activeOption = options.value.find(
+              (option) => option.element === getOwnerDocument(option.element)?.activeElement,
+            )
+            if (activeOption) api.change(activeOption.propsRef.value)
+          }
+        }
+          break
+
+        case Keys.Space: {
+          event.preventDefault()
+          event.stopPropagation()
+
+          let activeOption = options.value.find(
+            (option) => option.element === getOwnerDocument(option.element)?.activeElement,
+          )
+          if (activeOption) api.change(activeOption.propsRef.value)
+        }
           break
       }
     }
@@ -235,7 +232,7 @@ export let RadioGroup = defineComponent({
             form.value?.removeEventListener('reset', handle)
           }
         },
-        { immediate: true }
+        { immediate: true },
       )
     })
 
@@ -254,21 +251,21 @@ export let RadioGroup = defineComponent({
       return h(Fragment, [
         ...(name != null && value.value != null
           ? objectToFormEntries({ [name]: value.value }).map(([name, value]) =>
-              h(
-                Hidden,
-                compact({
-                  features: HiddenFeatures.Hidden,
-                  key: name,
-                  as: 'input',
-                  type: 'hidden',
-                  hidden: true,
-                  readOnly: true,
-                  form,
-                  name,
-                  value,
-                })
-              )
-            )
+            h(
+              Hidden,
+              compact({
+                features: HiddenFeatures.Hidden,
+                key: name,
+                as: 'input',
+                type: 'hidden',
+                hidden: true,
+                readOnly: true,
+                form,
+                name,
+                value,
+              }),
+            ),
+          )
           : []),
         render({
           ourProps,
