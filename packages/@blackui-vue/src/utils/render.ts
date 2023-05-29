@@ -1,4 +1,4 @@
-import { h, cloneVNode, Slots, Fragment, VNode } from 'vue'
+import { h, cloneVNode, Slots, Fragment, VNode, unref } from 'vue'
 import { match } from './match'
 
 export enum Features {
@@ -268,10 +268,24 @@ export function omit<T extends Record<any, any>, Keys extends keyof T>(
   return clone as Omit<T, Keys>
 }
 
-function isValidElement(input: any): boolean {
+export function isValidElement(input: any): boolean {
   if (input == null) return false // No children
   if (typeof input.type === 'string') return true // 'div', 'span', ...
   if (typeof input.type === 'object') return true // Other components
   if (typeof input.type === 'function') return true // Built-ins like Transition
   return false // Comments, strings, ...
+}
+
+export function isVisibleDOMElement(input: any): boolean {
+  input = unref(input)
+  return input && input?.nodeType !== Node.COMMENT_NODE
+}
+
+export function flattenFragment(nodes: VNode[]): VNode[] {
+  return nodes.reduce<VNode[]>((carry, node) => {
+    if (node.type === Fragment) {
+      return carry.concat(flattenFragment(node.children as VNode[]))
+    }
+    return carry.concat(node)
+  }, [])
 }

@@ -2,7 +2,7 @@ import { defineComponent } from 'vue'
 import snapshotDiff from 'snapshot-diff'
 import { render } from './vue-testing-library'
 
-import { disposables } from '../utils/disposables'
+import { disposables } from 'utils/disposables'
 import { reportChanges } from './report-dom-node-changes'
 
 function redentSnapshot(input: string) {

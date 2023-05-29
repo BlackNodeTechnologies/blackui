@@ -1,10 +1,10 @@
-import { nextTick, ref, watch, reactive, defineComponent, defineExpose } from 'vue'
-import { createRenderTemplate, render } from '../../test-utils/vue-testing-library'
+import { nextTick, ref, watch, reactive, defineComponent } from 'vue'
+import { createRenderTemplate, render } from 'test-utils/vue-testing-library'
 
 import { RadioGroup, RadioGroupOption, RadioGroupLabel, RadioGroupDescription } from './radio-group'
 
-import { suppressConsoleLogs } from '../../test-utils/suppress-console-logs'
-import { press, Keys, shift, click } from '../../test-utils/interactions'
+import { suppressConsoleLogs } from 'test-utils/suppress-console-logs'
+import { press, Keys, shift, click } from 'test-utils/interactions'
 import {
   getByText,
   assertRadioGroupLabel,
@@ -12,8 +12,8 @@ import {
   assertFocusable,
   assertNotFocusable,
   assertActiveElement,
-} from '../../test-utils/accessibility-assertions'
-import { html } from '../../test-utils/html'
+} from 'test-utils/accessibility-assertions'
+import { html } from 'test-utils/html'
 
 jest.mock('../../hooks/use-id')
 
