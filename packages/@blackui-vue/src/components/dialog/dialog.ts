@@ -22,7 +22,7 @@ import { Keys } from '../../keyboard'
 import { useId } from '../../hooks/use-id'
 import { FocusTrap } from '../../components/focus-trap/focus-trap'
 import { useInert } from '../../hooks/use-inert'
-import { Portal, PortalGroup } from '../portal/portal'
+import { Portal, PortalGroup, useNestedPortals } from '../portal/portal'
 import { StackMessage, useStackProvider } from '../../internal/stack-context'
 import { match } from '../../utils/match'
 import { ForcePortalRoot } from '../../internal/portal-force-root'
@@ -32,8 +32,8 @@ import { useOpenClosed, State } from '../../internal/open-closed'
 import { useOutsideClick } from '../../hooks/use-outside-click'
 import { getOwnerDocument } from '../../utils/owner'
 import { useEventListener } from '../../hooks/use-event-listener'
-import { Hidden, Features as HiddenFeatures } from '../../internal/hidden'
 import { useDocumentOverflowLockedEffect } from '../../hooks/document-overflow/use-document-overflow'
+import { useRootContainers } from '../../hooks/use-root-containers'
 
 enum DialogStates {
   Open,
@@ -97,9 +97,6 @@ export let Dialog = defineComponent({
 
     let internalDialogRef = ref<HTMLDivElement | null>(null)
 
-    // Reference to a node in the "main" tree, not in the portalled Dialog tree.
-    let mainTreeNode = ref<HTMLDivElement | null>(null)
-
     let ownerDocument = computed(() => getOwnerDocument(internalDialogRef))
 
     expose({ el: internalDialogRef, $el: internalDialogRef })
@@ -115,17 +112,26 @@ export let Dialog = defineComponent({
       throw new Error(
         `You provided an \`open\` prop to the \`Dialog\`, but the value is not a boolean. Received: ${
           open.value === Missing ? undefined : props.open
-        }`
+        }`,
       )
     }
 
     let dialogState = computed(() =>
-      !ready.value ? DialogStates.Closed : open.value ? DialogStates.Open : DialogStates.Closed
+      !ready.value ? DialogStates.Closed : open.value ? DialogStates.Open : DialogStates.Closed,
     )
     let enabled = computed(() => dialogState.value === DialogStates.Open)
 
     let hasNestedDialogs = computed(() => nestedDialogCount.value > 1) // 1 is the current dialog
     let hasParentDialog = inject(DialogContext, null) !== null
+    let [portals, PortalWrapper] = useNestedPortals()
+    let {
+      resolveContainers: resolveRootContainers,
+      mainTreeNodeRef,
+      MainTreeNode,
+    } = useRootContainers({
+      portals,
+      defaultContainers: [computed(() => api.panelRef.value ?? internalDialogRef.value)],
+    })
 
     // If there are multiple dialogs, then you can be the root, the leaf or one
     // in between. We only care abou whether you are the top most one or not.
@@ -139,7 +145,7 @@ export let Dialog = defineComponent({
     let isClosing = computed(() =>
       usesOpenClosedState !== null
         ? (usesOpenClosedState.value & State.Closing) === State.Closing
-        : false
+        : false,
     )
 
     // Ensure other elements can't be interacted with
@@ -155,7 +161,7 @@ export let Dialog = defineComponent({
         if (root.id === 'blackui-portal-root') return false
 
         // Find the root of the main tree node
-        return root.contains(dom(mainTreeNode)) && root instanceof HTMLElement
+        return root.contains(dom(mainTreeNodeRef)) && root instanceof HTMLElement
       }) ?? null) as HTMLElement | null
     })
     useInert(resolveRootOfMainTreeNode, inertOthersEnabled)
@@ -166,9 +172,10 @@ export let Dialog = defineComponent({
       return enabled.value
     })
     let resolveRootOfParentDialog = computed(() => {
-      return (Array.from(ownerDocument.value?.querySelectorAll('[data-blackui-portal]') ?? []).find(
-        (root) => root.contains(dom(mainTreeNode)) && root instanceof HTMLElement
-      ) ?? null) as HTMLElement | null
+      return (Array.from(
+          ownerDocument.value?.querySelectorAll('[data-blackui-portal]') ?? [],
+        ).find((root) => root.contains(dom(mainTreeNodeRef)) && root instanceof HTMLElement) ??
+        null) as HTMLElement | null
     })
     useInert(resolveRootOfParentDialog, inertParentDialogs)
 
@@ -208,22 +215,6 @@ export let Dialog = defineComponent({
 
     provide(DialogContext, api)
 
-    function resolveRootContainers() {
-      // Third party roots
-      let rootContainers = Array.from(
-        ownerDocument.value?.querySelectorAll('html > *, body > *, [data-blackui-portal]') ?? []
-      ).filter((container) => {
-        if (container === document.body) return false // Skip `<body>`
-        if (container === document.head) return false // Skip `<head>`
-        if (!(container instanceof HTMLElement)) return false // Skip non-HTMLElements
-        if (container.contains(dom(mainTreeNode))) return false // Skip if it is the main app
-        if (api.panelRef.value && container.contains(api.panelRef.value)) return false
-        return true // Keep
-      })
-
-      return [...rootContainers, api.panelRef.value ?? internalDialogRef.value] as HTMLElement[]
-    }
-
     // Handle outside click
     let outsideClickEnabled = computed(() => {
       if (!enabled.value) return false
@@ -231,12 +222,12 @@ export let Dialog = defineComponent({
       return true
     })
     useOutsideClick(
-      () => resolveRootContainers(),
+      resolveRootContainers,
       (_event, target) => {
         api.close()
         nextTick(() => target?.focus())
       },
-      outsideClickEnabled
+      outsideClickEnabled,
     )
 
     // Handle `Escape` to close
@@ -313,31 +304,33 @@ export let Dialog = defineComponent({
                   containers: resolveRootContainers,
                   features: enabled.value
                     ? match(position.value, {
-                        parent: FocusTrap.features.RestoreFocus,
-                        leaf:
-                          FocusTrap.features.All &
-                          (props.initialFocus
-                            ? ~FocusTrap.features.FocusLock
-                            : ~FocusTrap.features.FocusLock & ~FocusTrap.features.InitialFocus),
-                      })
+                      parent: FocusTrap.features.RestoreFocus,
+                      leaf:
+                        FocusTrap.features.All &
+                        (props.initialFocus
+                          ? ~FocusTrap.features.FocusLock
+                          : ~FocusTrap.features.FocusLock & ~FocusTrap.features.InitialFocus),
+                    })
                     : FocusTrap.features.None,
                 },
                 () =>
-                  render({
-                    ourProps,
-                    theirProps,
-                    slot,
-                    attrs,
-                    slots,
-                    visible: dialogState.value === DialogStates.Open,
-                    features: Features.RenderStrategy | Features.Static,
-                    name: 'Dialog',
-                  })
-              )
-            )
-          )
+                  h(PortalWrapper, {}, () =>
+                    render({
+                      ourProps,
+                      theirProps: { ...theirProps, ...attrs },
+                      slot,
+                      attrs,
+                      slots,
+                      visible: dialogState.value === DialogStates.Open,
+                      features: Features.RenderStrategy | Features.Static,
+                      name: 'Dialog',
+                    }),
+                  ),
+              ),
+            ),
+          ),
         ),
-        h(Hidden, { features: HiddenFeatures.Hidden, ref: mainTreeNode }),
+        h(MainTreeNode),
       ])
     }
   },
@@ -399,7 +392,7 @@ export let DialogBackdrop = defineComponent({
     onMounted(() => {
       if (api.panelRef.value === null) {
         throw new Error(
-          `A <DialogBackdrop /> component is being used, but a <DialogPanel /> component is missing.`
+          `A <DialogBackdrop /> component is being used, but a <DialogPanel /> component is missing.`,
         )
       }
     })
@@ -421,8 +414,8 @@ export let DialogBackdrop = defineComponent({
             attrs,
             slots,
             name: 'DialogBackdrop',
-          })
-        )
+          }),
+        ),
       )
     }
   },
