@@ -16,17 +16,17 @@ import {
   Ref,
   UnwrapRef,
 } from 'vue'
-import { dom } from 'utils/dom'
+import { dom } from '../../utils/dom'
 import { Keys } from 'keyboard'
-import { focusIn, Focus, FocusResult, sortByDomNode } from 'utils/focus-management'
+import { focusIn, Focus, FocusResult, sortByDomNode } from '../../utils/focus-management'
 import { useId } from '../../hooks/use-id'
-import { compact, omit, render } from 'utils/render'
+import { compact, omit, render } from '../../utils/render'
 import { Label, useLabels } from '../label/label'
 import { Description, useDescriptions } from '../description/description'
 import { useTreeWalker } from '../../hooks/use-tree-walker'
 import { Hidden, Features as HiddenFeatures } from '../../internal/hidden'
-import { attemptSubmit, objectToFormEntries } from 'utils/form'
-import { getOwnerDocument } from 'utils/owner'
+import { attemptSubmit, objectToFormEntries } from '../../utils/form'
+import { getOwnerDocument } from '../../utils/owner'
 import { useControllable } from '../../hooks/use-controllable'
 
 function defaultComparator<T>(a: T, z: T): boolean {
