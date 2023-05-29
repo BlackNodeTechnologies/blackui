@@ -49,11 +49,11 @@ import { env } from 'utils/env'
 import { flattenFragment, isValidElement, isVisibleDOMElement } from 'utils/render'
 import { getOwnerDocument } from 'utils/owner'
 import { type OriginClassResolver } from 'utils/origin-class-resolvers'
-import { useFloatingMiddlewareFromProps } from 'hooks/use-floating-middleware-from-props'
-import { useReferenceElResizeObserver } from 'hooks/use-reference-el-resize-observer'
-import { useTransitionAndOriginClass } from 'hooks/use-transition-and-origin-class'
-import { useOutsideClick } from 'hooks/use-outside-click'
-import { useDocumentEvent } from 'hooks/use-document-event'
+import { useFloatingMiddlewareFromProps } from '../../hooks/use-floating-middleware-from-props'
+import { useReferenceElResizeObserver } from '../../hooks/use-reference-el-resize-observer'
+import { useTransitionAndOriginClass } from '../../hooks/use-transition-and-origin-class'
+import { useOutsideClick } from '../../hooks/use-outside-click'
+import { useDocumentEvent } from '../../hooks/use-document-event'
 
 interface ReferenceState {
   referenceRef: Ref<ReferenceElement | null>
