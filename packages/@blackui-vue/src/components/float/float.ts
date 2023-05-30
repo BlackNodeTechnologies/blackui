@@ -463,7 +463,6 @@ export function useFloat<T extends ReferenceElement>(
     isVisibleDOMElement(floatingEl),
   )
 
-
   const { x, y, placement, strategy, middlewareData, update } = useFloating<T>(referenceEl, floatingEl, {
     placement: propPlacement,
     strategy: propStrategy,
@@ -507,7 +506,6 @@ export function useFloat<T extends ReferenceElement>(
   // @ts-ignore
   watch(show, async (value, oldValue, onInvalidate) => {
     await nextTick()
-
     if (show.value && isVisible.value && props.autoUpdate) {
       const cleanup = autoUpdate(
         referenceEl.value!,
