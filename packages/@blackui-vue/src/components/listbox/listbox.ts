@@ -323,6 +323,30 @@ export let Listbox = defineComponent({
       },
     }
 
+    watch(() => props.modelValue, (newValue, oldValue)=> {
+      if(oldValue && newValue === undefined){
+        theirOnChange(
+          match(mode.value, {
+            [ValueMode.Single]: () => newValue,
+            [ValueMode.Multi]: () => {
+              let copy = toRaw(api.value.value as unknown[]).slice()
+              let raw = toRaw(newValue)
+
+              let idx = copy.findIndex((value) => api.compare(raw, toRaw(value)))
+              if (idx === -1) {
+                copy.push(raw)
+              } else {
+                copy.splice(idx, 1)
+              }
+
+              return copy
+            },
+          })
+        )
+      }
+    })
+
+
     // Handle outside click
     useOutsideClick(
       [buttonRef, optionsRef],
