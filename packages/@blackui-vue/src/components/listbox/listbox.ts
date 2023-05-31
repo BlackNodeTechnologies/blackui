@@ -86,6 +86,7 @@ type StateDefinition = {
   searchQuery: Ref<string>
   activeOptionIndex: Ref<number | null>
   activationTrigger: Ref<ActivationTrigger>
+  activeKeyDown: Ref<boolean>
 
   // State mutators
   closeListbox(): void
@@ -147,6 +148,7 @@ export let Listbox = defineComponent({
     let options = ref<StateDefinition['options']['value']>([])
     let searchQuery = ref<StateDefinition['searchQuery']['value']>('')
     let activeOptionIndex = ref<StateDefinition['activeOptionIndex']['value']>(null)
+    let activeKeyDown = ref<StateDefinition['activeKeyDown']['value']>(false)
     let activationTrigger = ref<StateDefinition['activationTrigger']['value']>(
       ActivationTrigger.Other
     )
@@ -214,6 +216,7 @@ export let Listbox = defineComponent({
       searchQuery,
       activeOptionIndex,
       activationTrigger,
+      activeKeyDown,
       closeListbox() {
         if (props.disabled) return
         if (listboxState.value === ListboxStates.Closed) return
@@ -596,7 +599,7 @@ export let ListboxOptions = defineComponent({
 
     function handleKeyDown(event: KeyboardEvent) {
       if (searchDebounce.value) clearTimeout(searchDebounce.value)
-
+      api.activeKeyDown.value = true;
       switch (event.key) {
         // Ref: https://www.w3.org/WAI/ARIA/apg/patterns/menu/#keyboard-interaction-12
 
@@ -667,6 +670,10 @@ export let ListboxOptions = defineComponent({
       }
     }
 
+    function handleKeyUp() {
+      nextTick(() => api.activeKeyDown.value = false)
+    }
+
     let usesOpenClosedState = useOpenClosed()
     let visible = computed(() => {
       if (usesOpenClosedState !== null) {
@@ -689,6 +696,7 @@ export let ListboxOptions = defineComponent({
         'aria-orientation': api.orientation.value,
         id,
         onKeydown: handleKeyDown,
+        onkeyup: handleKeyUp,
         role: 'listbox',
         tabIndex: 0,
         ref: api.optionsRef,
@@ -793,6 +801,7 @@ export let ListboxOption = defineComponent({
       if (api.listboxState.value !== ListboxStates.Open) return
       if (!active.value) return
       if (api.activationTrigger.value === ActivationTrigger.Pointer) return
+      if (!api.activeKeyDown.value) return
       nextTick(() => dom(internalOptionRef)?.scrollIntoView?.({ block: 'nearest' }))
     })
 
